@@ -400,7 +400,7 @@
       // START BUTTON
       // ==========================================
 
-      startBtn.addEventListener("click", () => {
+      const start = startBtn.addEventListener("click", () => {
         // Jangan mulai jika masih berputar
         if (gameRunning) {
           return;
@@ -414,6 +414,7 @@
         questionElement.textContent = "The wheel is spinning...";
         statusElement.textContent = "Wait until the wheel stops.";
         answerElement.textContent = "";
+        correctAnswerElement.textContent = "";
 
         rotate();
       });
