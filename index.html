@@ -176,12 +176,22 @@
         min-height: 25px;
       }
 
+      #icon {
+        width: 100%;
+        font-size: 20px;
+        align-items: center;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin: auto;
+      }
+
       /* =========================
          RESPONSIVE
       ========================= */
 
       @media (max-width: 650px) {
-        body {
+        /* body {
           overflow: hidden;
         }
         .game {
@@ -226,6 +236,90 @@
           font-size: 17px;
           margin-top: -20px;
           border-radius: 6px;
+        } */
+
+        body {
+          overflow: hidden;
+        }
+        .game {
+          width: 100%;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
+        .wheel {
+          width: 90vw;
+          height: 90vw;
+          max-width: 500px;
+          max-height: 500px;
+        }
+
+        .question-box {
+          width: 90%;
+          font-size: 70%;
+          height: 70%;
+          margin-top: 30px;
+          padding: 10px;
+          padding-bottom: 20px;
+        }
+
+        .question-box #question {
+          font-size: 20px;
+        }
+
+        .arrow {
+          right: -20px;
+          font-size: 20px;
+          top: 170px;
+        }
+
+        .sector span {
+          font-size: 14px;
+        }
+
+        .start,
+        .stop {
+          width: 80px;
+          height: 30px;
+          font-size: 17px;
+          margin-top: -20px;
+          border-radius: 6px;
+        }
+
+        .narationBtn {
+          width: 200px;
+          padding: 7px;
+          font-size: 14px;
+        }
+
+        .sector span {
+          padding-left: 40px;
+          padding-right: 10px;
+          font-size: 13px;
+        }
+
+        #answer {
+          margin-top: 10px;
+          font-size: 16px;
+          color: #555;
+          /* min-height: 15px; */
+        }
+
+        #correct-answer {
+          font-size: 18px;
+          margin-top: 5px;
+        }
+
+        #status {
+          margin-top: 8px;
+        }
+
+        #icon {
+          font-size: 15px;
+        }
+
+        #question {
+          font-size: 22px;
         }
       }
     </style>
@@ -319,6 +413,13 @@
         <div id="status"></div>
         <div id="answer"></div>
         <div id="correct-answer"></div>
+        <div id="icon">
+          <a href="https://www.facebook.com/share/19K3pFqHJx/"><i class="bi bi-facebook"></i></a>
+          <a href="https://www.instagram.com/muhammad_hamri?igsi=eGFocDBvaGIzZ2Z5"><i class="bi bi-instagram"></i></a>
+          <a href="https://wa.link/1lo6q7"><i class="bi bi-whatsapp"></i></a>
+          <a href="https://tiktok.com/@muhammad.hamri1977"><i class="bi bi-tiktok"></i></a>
+          <a href="https://youtube.com/@muhammadhamri1684?si=yEngumF1t4eUVuB3"><i class="bi bi-youtube"></i></a>
+        </div>
       </div>
     </div>
 
