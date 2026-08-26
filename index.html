@@ -32,7 +32,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        overflow: hidden;
       }
 
       .wheel {
@@ -188,6 +187,7 @@
         .game {
           width: 100%;
           flex-direction: column;
+          overflow: hidden;
         }
 
         .wheel {
@@ -355,11 +355,15 @@
 
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       let recognition;
+      let recognitionActive = false;
+      let answerFinished = false;
+      let thinkingTimer;
+      const thinkingTime = 20000; // 20 detik
 
       if (SpeechRecognition) {
         recognition = new SpeechRecognition();
         recognition.lang = "en-US";
-        recognition.continuous = false;
+        recognition.continuous = true;
         recognition.interimResults = false;
       } else {
         alert("Your browser does not support Voice Recognition. Please use Google Chrome.");
@@ -495,34 +499,206 @@
       // VOICE RECOGNITION
       // ==========================================
 
+      // function startVoiceRecognition(correctAnswer) {
+      //   if (!recognition) {
+      //     return;
+      //   }
+
+      //   recognition.start();
+      //   recognition.onstart = () => {
+      //     statusElement.textContent = "🎤 Listening...";
+      //   };
+
+      //   recognition.onresult = (event) => {
+      //     const spokenText = event.results[0][0].transcript;
+      //     answerElement.textContent = `You said: "${spokenText}"`;
+      //     checkAnswer(spokenText, correctAnswer);
+      //   };
+
+      //   recognition.onerror = (event) => {
+      //     console.log("Speech recognition error:", event.error);
+      //     statusElement.textContent = "❌ Voice recognition error";
+
+      //     if (event.error === "not-allowed") {
+      //       alert("Microphone permission is denied. Please allow microphone access.");
+      //     }
+      //   };
+
+      //   recognition.onend = () => {
+      //     console.log("Voice recognition finished.");
+      //   };
+      // }
+
       function startVoiceRecognition(correctAnswer) {
         if (!recognition) {
           return;
         }
 
-        recognition.start();
+        recognitionActive = true;
+        answerFinished = false;
+
+        // Bersihkan timer sebelumnya
+        clearTimeout(thinkingTimer);
+
+        statusElement.textContent = "🎤 Listening... Take your time and speak your answer.";
+
+        // ==========================================
+        // BATAS WAKTU BERPIKIR
+        // ==========================================
+
+        thinkingTimer = setTimeout(() => {
+          if (!answerFinished) {
+            recognitionActive = false;
+            answerFinished = true;
+
+            try {
+              recognition.stop();
+            } catch (error) {
+              console.log("Recognition already stopped.");
+            }
+
+            statusElement.textContent = "⏰ Time is up. You think too long!";
+
+            console.log("Waktu menjawab habis.");
+          }
+        }, thinkingTime);
+
+        // ==========================================
+        // ON START
+        // ==========================================
+
         recognition.onstart = () => {
-          statusElement.textContent = "🎤 Listening...";
+          console.log("🎤 Recognition started.");
+
+          statusElement.textContent = "🎤 Listening... Speak your answer.";
         };
 
+        // ==========================================
+        // ON RESULT
+        // ==========================================
+
         recognition.onresult = (event) => {
-          const spokenText = event.results[0][0].transcript;
+          const result = event.results[event.results.length - 1];
+
+          if (!result.isFinal) {
+            return;
+          }
+
+          const spokenText = result[0].transcript.trim();
+
+          console.log("User said:", spokenText);
+
+          if (!spokenText) {
+            return;
+          }
+
+          // ==========================================
+          // SISWA SUDAH MENJAWAB
+          // ==========================================
+
+          answerFinished = true;
+          recognitionActive = false;
+
+          // Hentikan timer
+          clearTimeout(thinkingTimer);
+
+          // Tampilkan jawaban
           answerElement.textContent = `You said: "${spokenText}"`;
+
+          // Hentikan recognition
+          try {
+            recognition.stop();
+          } catch (error) {
+            console.log("Recognition already stopped.");
+          }
+
+          // Periksa jawaban
           checkAnswer(spokenText, correctAnswer);
         };
 
+        // ==========================================
+        // ERROR
+        // ==========================================
+
         recognition.onerror = (event) => {
           console.log("Speech recognition error:", event.error);
-          statusElement.textContent = "❌ Voice recognition error";
+
+          // Jangan anggap no-speech sebagai kegagalan
+          if (event.error === "no-speech") {
+            statusElement.textContent = "🎤 Still listening... Please speak.";
+
+            return;
+          }
 
           if (event.error === "not-allowed") {
+            recognitionActive = false;
+
+            clearTimeout(thinkingTimer);
+
+            statusElement.textContent = "❌ Microphone permission denied.";
+
             alert("Microphone permission is denied. Please allow microphone access.");
+
+            return;
+          }
+
+          statusElement.textContent = "❌ Voice recognition error.";
+        };
+
+        // ==========================================
+        // ON END
+        // ==========================================
+
+        recognition.onend = () => {
+          console.log("🎤 Recognition ended.");
+
+          /*
+      Chrome dapat menghentikan recognition
+      ketika user terlalu lama diam.
+
+      Jika waktu menjawab masih berjalan,
+      kita mulai kembali recognition.
+    */
+
+          if (recognitionActive && !answerFinished) {
+            console.log("🔄 Restarting recognition...");
+
+            setTimeout(() => {
+              if (recognitionActive && !answerFinished) {
+                try {
+                  recognition.start();
+                } catch (error) {
+                  console.log("Restart error:", error);
+                }
+              }
+            }, 500);
           }
         };
 
-        recognition.onend = () => {
-          console.log("Voice recognition finished.");
-        };
+        // ==========================================
+        // MULAI RECOGNITION
+        // ==========================================
+
+        try {
+          recognition.start();
+        } catch (error) {
+          console.log("Recognition start error:", error);
+        }
+      }
+
+      function stopVoiceRecognition() {
+        recognitionActive = false;
+        answerFinished = true;
+
+        clearTimeout(thinkingTimer);
+
+        if (recognition) {
+          try {
+            recognition.stop();
+          } catch (error) {
+            console.log("Recognition already stopped.");
+          }
+        }
       }
 
       // ==========================================
